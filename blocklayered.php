@@ -2044,8 +2044,8 @@ class BlockLayered extends Module
 				LEFT JOIN '._DB_PREFIX_.'manufacturer m ON (m.id_manufacturer = p.id_manufacturer)
 				'.Product::sqlStock('p', 0).'
 				WHERE '.$alias_where.'.`active` = 1 AND '.$alias_where.'.`visibility` IN ("both", "catalog")
-				ORDER BY '.Tools::getProductsOrder('by', Tools::getValue('orderby'), true).' '.Tools::getProductsOrder('way', Tools::getValue('orderway')).' , cp.id_product'.
-				' LIMIT '.(((int)$this->page - 1) * $n.','.$n), true, false);
+				ORDER BY '.Tools::getProductsOrder('by', Tools::getValue('orderby'), true).' '.Tools::getProductsOrder('way', Tools::getValue('orderway')).' , cp.id_product'
+                    /*.' LIMIT '.(((int)$this->page - 1) * $n.','.$n)*/, true, false);
 			}
 			else
 			{
@@ -2075,14 +2075,16 @@ class BlockLayered extends Module
 				'.Product::sqlStock('p', 0).'
 				WHERE '.$alias_where.'.`active` = 1 AND '.$alias_where.'.`visibility` IN ("both", "catalog")
 				GROUP BY product_shop.id_product
-				ORDER BY '.Tools::getProductsOrder('by', Tools::getValue('orderby'), true).' '.Tools::getProductsOrder('way', Tools::getValue('orderway')).' , cp.id_product'.
-				' LIMIT '.(((int)$this->page - 1) * $n.','.$n), true, false);
+				ORDER BY '.Tools::getProductsOrder('by', Tools::getValue('orderby'), true).' '.Tools::getProductsOrder('way', Tools::getValue('orderway')).' , cp.id_product'
+                    /*.' LIMIT '.(((int)$this->page - 1) * $n.','.$n)*/, true, false);
 			}
 		}
 
-		if (Tools::getProductsOrder('by', Tools::getValue('orderby'), true) == 'p.price')
-			Tools::orderbyPrice($this->products, Tools::getProductsOrder('way', Tools::getValue('orderway')));
+		if (Tools::getProductsOrder('by', Tools::getValue('orderby'), true) == 'p.price') {
+            Tools::orderbyPrice($this->products, Tools::getProductsOrder('way', Tools::getValue('orderway')));
+        }
 
+        $this->products = array_slice($this->products, ((int)$this->page - 1) * $n, $n);
 		return $this->products;
 	}
 
