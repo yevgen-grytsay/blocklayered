@@ -66,7 +66,7 @@ class BlocklayeredProductQuery {
     {
         $include = '';
         if ($include_ids) {
-            $include = sprintf(' AND %s.id_product IN(%s)', $this->alias_where, implode(', ', $include_ids));
+            $include = sprintf(' AND %s.id_product IN(%s) ', $this->alias_where, implode(', ', $include_ids));
         }
         return $include;
     }
@@ -79,7 +79,7 @@ class BlocklayeredProductQuery {
     {
         $exclude = '';
         if ($exclude_ids) {
-            $exclude = sprintf(' AND %s.id_product NOT IN(%s)', $this->alias_where, implode(', ', $exclude_ids));
+            $exclude = sprintf(' AND %s.id_product NOT IN(%s) ', $this->alias_where, implode(', ', $exclude_ids));
         }
         return $exclude;
     }
