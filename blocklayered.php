@@ -2079,21 +2079,9 @@ class BlockLayered extends Module
     private static function getProductsWithoutPrice($id_shop)
     {
         $sql = new DbQuery();
-        $sql->select('p.`id_product`');
-        $sql->from('product', 'p');
-        $sql->innerJoin('product_shop', 'product_shop', '(product_shop.id_product=p.id_product AND product_shop.id_shop = '.(int)$id_shop.')');
-
-        if (Combination::isFeatureActive())
-        {
-            $sql->select('product_attribute_shop.id_product_attribute, product_attribute_shop.`price` AS attribute_price, product_attribute_shop.default_on');
-            $sql->leftJoin('product_attribute', 'pa', 'pa.`id_product` = p.`id_product`');
-            $sql->leftJoin('product_attribute_shop', 'product_attribute_shop', '(product_attribute_shop.id_product_attribute = pa.id_product_attribute AND product_attribute_shop.id_shop = '.(int)$id_shop.')');
-            $sql->where('p.`price` = 0 AND product_attribute_shop.`price` = 0');
-        }
-        else {
-            $sql->where('p.`price` = 0 ');
-            $sql->select('0 as id_product_attribute');
-        }
+        $sql->select('pi.`id_product`');
+        $sql->from('layered_price_index', 'pi');
+        $sql->where('pi.price_min = 0');
         $res = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
         $ids = array_map(function($product) {
             return $product['id_product'];
@@ -3544,38 +3532,4 @@ class BlockLayered extends Module
 		else
 			return filter_var($value, FILTER_SANITIZE_STRING);
 	}
-
-    /**
-     * @param $selected_filters
-     * @param $parent
-     * @param $id_parent
-     * @param $price_filter_query_out
-     * @param $query_filters_from
-     * @param $query_filters_where
-     * @param $categories
-     * @return array
-     */
-    private function getAllProductIds($selected_filters, $parent, $id_parent, $price_filter_query_out, $query_filters_from, $query_filters_where, $categories)
-    {
-        if (empty($selected_filters['category'])) {
-            $products = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-				SELECT p.`id_product` id_product
-				FROM `' . _DB_PREFIX_ . 'product` p JOIN ' . _DB_PREFIX_ . 'category_product cp USING (id_product)
-				INNER JOIN ' . _DB_PREFIX_ . 'category c ON (c.id_category = cp.id_category AND
-					' . (Configuration::get('PS_LAYERED_FULL_TREE') ? 'c.nleft >= ' . (int)$parent->nleft . '
-					AND c.nright <= ' . (int)$parent->nright : 'c.id_category = ' . (int)$id_parent) . '
-					AND c.active = 1)
-				' . $price_filter_query_out . '
-				' . $query_filters_from . '
-				WHERE 1 ' . $query_filters_where . ' GROUP BY cp.id_product');
-        } else {
-            $products = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-				SELECT p.`id_product` id_product
-				FROM `' . _DB_PREFIX_ . 'product` p JOIN ' . _DB_PREFIX_ . 'category_product cp USING (id_product)
-				' . $price_filter_query_out . '
-				' . $query_filters_from . '
-				WHERE cp.`id_category` IN (' . implode(',', $categories) . ') ' . $query_filters_where . ' GROUP BY cp.id_product');
-        }
-        return $products;
-    }
 }
