@@ -1991,7 +1991,6 @@ class BlockLayered extends Module
         /* for this case, price could be out of range, so we need to compute the real price */
 
 		if ($isPriceFilter) {
-            $products_to_sort = array();
             foreach($all_products_out as $product) {
                 $price = Product::getPriceStatic($product['id_product'], $ps_layered_filter_price_usetax);
                 if ($ps_layered_filter_price_rounding) {
@@ -2057,7 +2056,8 @@ class BlockLayered extends Module
 			{
                 $isOrderByPrice = Tools::getProductsOrder('by', Tools::getValue('orderby'), true) == 'p.price';
                 $qb = new BlocklayeredProductQuery($n, $alias_where, $nb_day_new_product, $context, $cookie);
-                $all_ids = array_unique(self::array_column($all_products_out, 'id_product'));
+                $all_products_in = Db::getInstance()->executeS('SELECT id_product FROM '._DB_PREFIX_.'cat_filter_restriction');
+                $all_ids = array_unique(self::array_column($all_products_in, 'id_product'));
                 if ($isOrderByPrice) {
                     $no_price_all_ids = self::getProductsWithoutPrice($context->shop->id);
                     $pag = new BlocklayeredPagination($qb, $n, $all_ids, $no_price_all_ids);
