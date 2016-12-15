@@ -1956,20 +1956,20 @@ class BlockLayered extends Module
 		}
 		Db::getInstance()->execute('ALTER TABLE '._DB_PREFIX_.'cat_filter_restriction ADD PRIMARY KEY (id_product), ADD KEY (position, id_product) USING BTREE', false);
 
+		if ($isPriceFilter) {
+            static $ps_layered_filter_price_usetax = null;
+            static $ps_layered_filter_price_rounding = null;
 
-        static $ps_layered_filter_price_usetax = null;
-        static $ps_layered_filter_price_rounding = null;
+            if ($ps_layered_filter_price_usetax === null) {
+                $ps_layered_filter_price_usetax = Configuration::get('PS_LAYERED_FILTER_PRICE_USETAX');
+            }
 
-        if ($ps_layered_filter_price_usetax === null) {
-            $ps_layered_filter_price_usetax = Configuration::get('PS_LAYERED_FILTER_PRICE_USETAX');
-        }
+            if ($ps_layered_filter_price_rounding === null) {
+                $ps_layered_filter_price_rounding = Configuration::get('PS_LAYERED_FILTER_PRICE_ROUNDING');
+            }
 
-        if ($ps_layered_filter_price_rounding === null) {
-            $ps_layered_filter_price_rounding = Configuration::get('PS_LAYERED_FILTER_PRICE_ROUNDING');
-        }
-
-        if (empty($selected_filters['category'])) {
-            $all_products_out = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
+            if (empty($selected_filters['category'])) {
+                $all_products_out = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
 				SELECT p.`id_product` id_product
 				FROM `'._DB_PREFIX_.'product` p JOIN '._DB_PREFIX_.'category_product cp USING (id_product)
 				INNER JOIN '._DB_PREFIX_.'category c ON (c.id_category = cp.id_category AND
@@ -1979,18 +1979,16 @@ class BlockLayered extends Module
 				'.$price_filter_query_out.'
 				'.$query_filters_from.'
 				WHERE 1 '.$query_filters_where.' GROUP BY cp.id_product');
-        } else {
-            $all_products_out = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
+            } else {
+                $all_products_out = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
 				SELECT p.`id_product` id_product
 				FROM `'._DB_PREFIX_.'product` p JOIN '._DB_PREFIX_.'category_product cp USING (id_product)
 				'.$price_filter_query_out.'
 				'.$query_filters_from.'
 				WHERE cp.`id_category` IN ('.implode(',', $categories).') '.$query_filters_where.' GROUP BY cp.id_product');
-        }
+            }
 
-        /* for this case, price could be out of range, so we need to compute the real price */
-
-		if ($isPriceFilter) {
+            /* for this case, price could be out of range, so we need to compute the real price */
             foreach($all_products_out as $product) {
                 $price = Product::getPriceStatic($product['id_product'], $ps_layered_filter_price_usetax);
                 if ($ps_layered_filter_price_rounding) {
