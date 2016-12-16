@@ -24,9 +24,10 @@ class BlocklayeredPagination {
     public function __construct(BlocklayeredProductQuery $qb, $on_page, array $all_ids, array $no_price_ids = array())
     {
         $this->price_ids = array_diff($all_ids, $no_price_ids);
-        $this->no_price_ids = array_intersect($all_ids, $no_price_ids); //TODO sort
+        $this->no_price_ids = array_intersect($all_ids, $no_price_ids);
         $this->on_page = $on_page;
         $this->qb = $qb;
+        sort($this->no_price_ids);
     }
 
     public function getProducts($page) {

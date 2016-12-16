@@ -2052,21 +2052,16 @@ class BlockLayered extends Module
 			}
 			else
 			{
-                $isOrderByPrice = Tools::getProductsOrder('by', Tools::getValue('orderby'), true) == 'p.price';
                 $qb = new BlocklayeredProductQuery($n, $alias_where, $nb_day_new_product, $context, $cookie);
                 $all_products_in = Db::getInstance()->executeS('SELECT id_product FROM '._DB_PREFIX_.'cat_filter_restriction');
                 $all_ids = array_unique(self::array_column($all_products_in, 'id_product'));
-                if ($isOrderByPrice) {
-                    $no_price_all_ids = self::getProductsWithoutPrice($context->shop->id);
-                    $pag = new BlocklayeredPagination($qb, $n, $all_ids, $no_price_all_ids);
-                } else {
-                    $pag = new BlocklayeredPagination($qb, $n, $all_ids);
-                }
+                $no_price_all_ids = self::getProductsWithoutPrice($context->shop->id);
+                $pag = new BlocklayeredPagination($qb, $n, $all_ids, $no_price_all_ids);
                 $this->products = $pag->getProducts($this->page);
 			}
 		}
 
-		if ($isOrderByPrice) {
+        if (Tools::getProductsOrder('by', Tools::getValue('orderby'), true) == 'p.price') {
             Tools::orderbyPrice($this->products, Tools::getProductsOrder('way', Tools::getValue('orderway')));
         }
 
