@@ -2076,9 +2076,7 @@ class BlockLayered extends Module
         $sql->from('layered_price_index', 'pi');
         $sql->where('pi.price_min = 0');
         $res = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
-        $ids = array_map(function($product) {
-            return $product['id_product'];
-        }, $res);
+        $ids = self::array_column($res, 'id_product');
         return array_unique($ids);
     }
 
