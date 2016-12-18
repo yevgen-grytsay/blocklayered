@@ -2047,8 +2047,8 @@ class BlockLayered extends Module
 				LEFT JOIN '._DB_PREFIX_.'manufacturer m ON (m.id_manufacturer = p.id_manufacturer)
 				'.Product::sqlStock('p', 0).'
 				WHERE '.$alias_where.'.`active` = 1 AND '.$alias_where.'.`visibility` IN ("both", "catalog")
-				ORDER BY '.Tools::getProductsOrder('by', Tools::getValue('orderby'), true).' '.Tools::getProductsOrder('way', Tools::getValue('orderway')).' , cp.id_product'
-                    .' LIMIT '.(((int)$this->page - 1) * $n.','.$n), true, false);
+				ORDER BY '.Tools::getProductsOrder('by', Tools::getValue('orderby'), true).' '.Tools::getProductsOrder('way', Tools::getValue('orderway')).' , cp.id_product'.
+				' LIMIT '.(((int)$this->page - 1) * $n.','.$n), true, false);
 			}
 			else
 			{
